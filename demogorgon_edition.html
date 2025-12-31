@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stranger Things Demogorgon Edition</title>
+    <meta name="description" content="An Upside Down celebration for Arjun Sir">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;700&display=swap');
+        
+        body {
+    font-family: 'Bebas Neue', cursive;
+    overflow-x: hidden;
+    color: #e01e37;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='none' stroke='%23e01e37' stroke-width='2'/></svg>"), auto;
+}
+
+#bgVideo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    z-index: -20;
+}
+            
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden">
+<!-- Background Video -->
+<video id="bgVideo" autoplay muted loop playsinline preload="auto">
+    <source src="video.mp4" type="video/mp4">
+</video>
+
+    <!-- Audio Elements -->
+    <audio id="bgMusic" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-ambience-1106.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="thunderSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-thunder-strike-1080.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="birthdaySound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-happy-bells-notification-937.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Fog Layer -->
+    <div class="fog"></div>
+
+    <!-- Lightning Effect -->
+    <div id="lightning" class="lightning"></div>
+
+    <!-- Neon Light Wires -->
+    <div id="lightWires"></div>
+    
+    <!-- Shadow Curtains -->
+    <div id="leftCurtain" class="curtain fixed top-0 left-0 w-1/2 h-full z-40 transform -translate-x-0 transition-transform duration-3000 ease-in-out neon-border"></div>
+    <div id="rightCurtain" class="curtain fixed top-0 right-0 w-1/2 h-full z-40 transform translate-x-0 transition-transform duration-3000 ease-in-out neon-border"></div>
+    
+    <!-- Demogorgon Silhouette -->
+    <div id="demogorgon" class="demogorgon"></div>
+    
+    <!-- Main Content -->
+    <div id="mainContent" class="text-center px-4 py-12 z-20 opacity-0 transition-opacity duration-1000 distortion">
+        <h1 id="mainText" class="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 red-gold-gradient pulse glitch" data-text="HAPPY NEW YEAR, ARJUN SIR">
+            HAPPY NEW YEAR, <span class="sir-text">ARJUN <span class="sir-letters">S I R</span></span>
+        </h1>
+        <h2 id="birthdayText" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-8 red-gold-gradient hidden">
+            HAPPIEST BIRTHDAY, ARJUN SIR 🎂
+        </h2>
+    </div>
+    
+    <!-- Particles Container -->
+    <div id="particlesContainer" class="fixed inset-0 pointer-events-none"></div>
+    
+    <!-- Fireflies -->
+    <div id="firefliesContainer" class="fixed inset-0 pointer-events-none"></div>
+    
+    <script>
+        // Initialize variables
+        const leftCurtain = document.getElementById('leftCurtain');
+        const rightCurtain = document.getElementById('rightCurtain');
+        const mainContent = document.getElementById('mainContent');
+        const mainText = document.getElementById('mainText');
+        const birthdayText = document.getElementById('birthdayText');
+        const sirLetters = document.querySelector('.sir-letters');
+        const particlesContainer = document.getElementById('particlesContainer');
+        const firefliesContainer = document.getElementById('firefliesContainer');
+        const lightWires = document.getElementById('lightWires');
+        const demogorgon = document.getElementById('demogorgon');
+        const lightning = document.getElementById('lightning');
+        const bgMusic = document.getElementById('bgMusic');
+        const thunderSound = document.getElementById('thunderSound');
+        const birthdaySound = document.getElementById('birthdaySound');
+        
+        // Create light wires
+        function createLightWires() {
+            for (let i = 0; i < 10; i++) {
+                const wire = document.createElement('div');
+                wire.className = 'light-wire';
+                
+                // Random position
+                wire.style.top = `${Math.random() * 100}%`;
+                wire.style.left = `${Math.random() * 100}%`;
+                wire.style.width = `${Math.random() * 300 + 100}px`;
+                wire.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                lightWires.appendChild(wire);
+            }
+        }
+        
+        // Create fog particles
+        function createFogParticles(count) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.background = 'rgba(150, 150, 150, 0.2)';
+                
+                // Random properties
+                const size = Math.random() * 50 + 100;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const duration = Math.random() * 30 + 30;
+                const delay = Math.random() * 10;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.filter = 'blur(20px)';
+                
+                particlesContainer.appendChild(particle);
+                
+                // Animate particle
+                gsap.to(particle, {
+                    x: (Math.random() - 0.5) * 200,
+                    y: (Math.random() - 0.5) * 200,
+                    duration: duration,
+                    delay: delay,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+        
+        // Create fireflies
+        function createFireflies(count) {
+            for (let i = 0; i < count; i++) {
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+                
+                // Random properties
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const size = Math.random() * 3 + 1;
+                const duration = Math.random() * 5 + 3;
+                const delay = Math.random() * 5;
+                
+                firefly.style.width = `${size}px`;
+                firefly.style.height = `${size}px`;
+                firefly.style.left = `${posX}%`;
+                firefly.style.top = `${posY}%`;
+                firefly.style.opacity = '0.8';
+                
+                firefliesContainer.appendChild(firefly);
+                
+                // Animate firefly
+                gsap.to(firefly, {
+                    x: (Math.random() - 0.5) * 50,
+                    y: (Math.random() - 0.5) * 50,
+                    duration: duration,
+                    delay: delay,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                    onComplete: function() {
+                        gsap.to(firefly, {
+                            opacity: 0.3,
+                            duration: 1,
+                            repeat: -1,
+                            yoyo: true
+                        });
+                    }
+                });
+            }
+        }
+        
+        // Create lightning effect
+        function createLightning() {
+            thunderSound.volume = 0.3;
+            thunderSound.play().catch(e => console.log("Sound prevented:", e));
+            
+            gsap.to(lightning, {
+                opacity: 0.7,
+                duration: 0.1,
+                repeat: 2,
+                yoyo: true,
+                onComplete: () => {
+                    gsap.to(lightning, {
+                        opacity: 0,
+                        duration: 0.5
+                    });
+                }
+            });
+        }
+        
+        // Random lightning strikes
+        function randomLightning() {
+            if (Math.random() > 0.7) {
+                createLightning();
+            }
+            setTimeout(randomLightning, 10000 + Math.random() * 20000);
+        }
+        
+        // Shatter text effect
+        function shatterText(element) {
+            const text = element.textContent;
+            element.innerHTML = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === ' ') {
+                    element.innerHTML += ' ';
+                    continue;
+                }
+                
+                const span = document.createElement('span');
+                span.className = 'shatter';
+                span.textContent = char;
+                span.style.display = 'inline-block';
+                span.style.transformOrigin = 'center center';
+                element.appendChild(span);
+                
+                // Animate shatter
+                gsap.to(span, {
+                    y: -50,
+                    x: (Math.random() - 0.5) * 100,
+                    opacity: 0,
+                    rotation: (Math.random() - 0.5) * 360,
+                    duration: 1.5,
+                    ease: "power2.out",
+                    delay: i * 0.05
+                });
+            }
+        }
+        
+        // Create confetti effect
+        function createConfetti(count) {
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'particle';
+                
+                // Random properties
+                const size = Math.random() * 8 + 4;
+                const posX = Math.random() * window.innerWidth;
+                const colors = ['#e01e37', '#ffd700', '#ffffff', '#ff6b6b'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.left = `${posX}px`;
+                confetti.style.bottom = '0';
+                confetti.style.background = color;
+                confetti.style.opacity = '0.8';
+                confetti.style.borderRadius = '0';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(confetti);
+                
+                // Animate confetti
+                gsap.to(confetti, {
+                    y: -window.innerHeight - 100,
+                    x: (Math.random() - 0.5) * 200,
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 3 + 2,
+                    ease: "power1.out",
+                    onComplete: () => {
+                        confetti.remove();
+                    }
+                });
+            }
+        }
+        
+        // Position Demogorgon
+        function positionDemogorgon() {
+            const rect = mainContent.getBoundingClientRect();
+            demogorgon.style.left = `${rect.left + rect.width/2 - 150}px`;
+            demogorgon.style.top = `${rect.top + rect.height/2 - 200}px`;
+        }
+        
+        // Page load animation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Start music (muted by default due to autoplay policies)
+            bgMusic.volume = 0.2;
+            bgMusic.play().catch(e => console.log("Autoplay prevented:", e));
+            
+            // Create elements
+            createLightWires();
+            createFogParticles(10);
+            createFireflies(30);
+            positionDemogorgon();
+            
+            // Start random lightning
+            setTimeout(randomLightning, 5000);
+            
+            // Zoom-in effect
+            gsap.from('body', {
+                scale: 0.95,
+                duration: 3,
+                ease: "power2.inOut"
+            });
+            
+            // Fade in main content after curtains open
+            setTimeout(() => {
+                mainContent.style.opacity = '1';
+            }, 3000);
+        });
+        
+        // Open curtains on click or keypress
+        function openCurtains() {
+    leftCurtain.style.transform = 'translateX(-100%)';
+    rightCurtain.style.transform = 'translateX(100%)';
+    
+    // Unmute and play music now that user interacted
+    bgMusic.muted = false;
+    bgMusic.volume = 0.2;
+    bgMusic.play().catch(e => console.log("Play prevented:", e));
+
+    document.removeEventListener('click', openCurtains);
+    document.removeEventListener('keypress', openCurtains);
+}
+
+        
+        document.addEventListener('click', openCurtains);
+        document.addEventListener('keypress', openCurtains);
+        
+        // Hover effects for "S I R"
+        const sirText = document.querySelector('.sir-text');
+        sirText.addEventListener('mouseenter', () => {
+            // Add sparkles
+            for (let i = 0; i < 10; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'firefly';
+                
+                const rect = sirText.getBoundingClientRect();
+                const posX = rect.left + Math.random() * rect.width;
+                const posY = rect.top + Math.random() * rect.height;
+                
+                sparkle.style.left = `${posX}px`;
+                sparkle.style.top = `${posY}px`;
+                sparkle.style.opacity = '0.8';
+                
+                document.body.appendChild(sparkle);
+                
+                // Animate sparkle
+                gsap.to(sparkle, {
+                    x: (Math.random() - 0.5) * 20,
+                    y: (Math.random() - 0.5) * 20,
+                    opacity: 0,
+                    scale: 2,
+                    duration: 1,
+                    onComplete: () => {
+                        sparkle.remove();
+                    }
+                });
+            }
+            
+            // Glow effect
+            gsap.to('.sir-letters', {
+                textShadow: '0 0 15px #e01e37, 0 0 30px #ffd700',
+                duration: 0.5
+            });
+        });
+        
+        sirText.addEventListener('mouseleave', () => {
+            gsap.to('.sir-letters', {
+                textShadow: '0 0 10px rgba(224, 30, 55, 0.3)',
+                duration: 0.5
+            });
+        });
+        
+        // Click effect for "S I R"
+        sirText.addEventListener('click', () => {
+            // Play birthday sound
+            birthdaySound.volume = 0.4;
+            birthdaySound.play().catch(e => console.log("Sound prevented:", e));
+            
+            // Shatter the "S I R" text
+            shatterText(document.querySelector('.sir-letters'));
+            
+            // Show Demogorgon
+            gsap.to(demogorgon, {
+                opacity: 0.3,
+                duration: 2
+            });
+            
+            // Create lightning effect
+            createLightning();
+            
+            // Create red particles
+            createConfetti(30);
+            
+            // Transition to birthday text
+            setTimeout(() => {
+                // Hide main text, show birthday text
+                gsap.to(mainText, {
+                    opacity: 0,
+                    duration: 1,
+                    onComplete: () => {
+                        mainText.classList.add('hidden');
+                        birthdayText.classList.remove('hidden');
+                        gsap.to(birthdayText, {
+                            opacity: 1,
+                            duration: 1
+                        });
+                    }
+                });
+            }, 1000);
+            
+            // Add sparkles to birthday text
+            setInterval(() => {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'firefly';
+                
+                const rect = birthdayText.getBoundingClientRect();
+                const posX = rect.left + Math.random() * rect.width;
+                const posY = rect.top + Math.random() * rect.height;
+                
+                sparkle.style.left = `${posX}px`;
+                sparkle.style.top = `${posY}px`;
+                sparkle.style.opacity = '0.8';
+                
+                document.body.appendChild(sparkle);
+                
+                // Animate sparkle
+                gsap.to(sparkle, {
+                    x: (Math.random() - 0.5) * 20,
+                    y: (Math.random() - 0.5) * 20,
+                    opacity: 0,
+                    scale: 2,
+                    duration: 1,
+                    onComplete: () => {
+                        sparkle.remove();
+                    }
+                });
+            }, 300);
+        });
+        
+        // Parallax effect on mousemove
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            gsap.to('.fog', {
+                backgroundPosition: `${x * 20}px ${y * 20}px`,
+                duration: 1,
+                ease: "power1.out"
+            });
+            
+            gsap.to(demogorgon, {
+                x: (x - 0.5) * 20,
+                y: (y - 0.5) * 20,
+                duration: 1,
+                ease: "power1.out"
+            });
+        });
+        
+        // Window resize handler
+        window.addEventListener('resize', positionDemogorgon);
+    </script>
+</body>
+</html>
